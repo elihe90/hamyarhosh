@@ -1,0 +1,15 @@
+from openai import OpenAI
+
+client = OpenAI(
+  api_key="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"
+)
+
+completion = client.chat.completions.create(
+  model="gpt-4o-mini",
+  store=True,
+  messages=[
+    {"role": "user", "content": "write a haiku about ai"}
+  ]
+)
+
+print(completion.choices[0].message);
