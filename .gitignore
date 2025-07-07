@@ -1,20 +1,23 @@
-# Python cache
-__pycache__/
-*.pyc
-
-# Environment variables
+# Environment variables file
 .env
 
-# SQLite Database
+# Database files
 *.db
 *.db-journal
 
-# ChromaDB Vector Store Directories
+# Vector store directories
 ai_advisor_db/
 ai_advisor_db_final/
 courses_db/
 faq_db/
 
+# Python cache
+__pycache__/
+*.pyc
+
 # Virtual Environment
 .venv/
 venv/
+
+# Any other sensitive files mentioned in the error
+from openai import OpenAI.txt

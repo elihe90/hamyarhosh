@@ -3,11 +3,17 @@ import sqlite3, json, os, shutil
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
-
+import os
+from dotenv import load_dotenv
 DB_FILE = "chatbot_data.db"
 VECTOR_DB_DIR = "./ai_advisor_db"
-AVAL_AI_API_KEY = "aa-sXbTrJMgJUY9bBIJpf5tp3hr2k2iHXRKbBpd1Rz6UmRzO4sm" # ! کلید خود را جایگزین کنید
-AVAL_AI_BASE_URL = "https://api.avalai.org/v1"
+
+# --- Configuration ---
+'''AVAL_AI_API_KEY = "" # ! کلید خود را جایگزین کنید
+AVAL_AI_BASE_URL = "" # ! آدرس پراکسی شما'''
+load_dotenv()
+AVAL_AI_API_KEY = os.getenv("AVAL_AI_API_KEY")
+AVAL_AI_BASE_URL = os.getenv("AVAL_AI_BASE_URL")
 
 def load_data_from_db():
     conn = sqlite3.connect(DB_FILE)
