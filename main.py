@@ -13,10 +13,18 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 # Make sure langchain-community is installed for ChatMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
-
+import os
+from dotenv import load_dotenv
 # --- Configuration ---
-AVAL_AI_API_KEY = "aa-sXbTrJMgJUY9bBIJpf5tp3hr2k2iHXRKbBpd1Rz6UmRzO4sm" # ! کلید خود را جایگزین کنید
-AVAL_AI_BASE_URL = "https://api.avalai.org/v1" # ! آدرس پراکسی شما
+'''AVAL_AI_API_KEY = "" # ! کلید خود را جایگزین کنید
+AVAL_AI_BASE_URL = "" # ! آدرس پراکسی شما'''
+load_dotenv()
+AVAL_AI_API_KEY = os.getenv("AVAL_AI_API_KEY")
+AVAL_AI_BASE_URL = os.getenv("AVAL_AI_BASE_URL")
+
+# بررسی اینکه آیا کلید در فایل .env وجود دارد یا نه
+if not AVAL_AI_API_KEY:
+    raise ValueError("API key not found. Please set it in your .env file.")
 
 # --- FastAPI App ---
 app = FastAPI(title="Final AI Advisor with Memory")
