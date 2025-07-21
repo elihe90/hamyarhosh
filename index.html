@@ -1,20 +1,21 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشاور هوشمند AI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>همیار هوش - مشاور دوره‌ها</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #4A90E2;
-            --user-msg-bg: #4A90E2;
-            --assistant-msg-bg: #F5F5F7;
-            --bg-color: #E9ECEF;
+            --primary-color: #2a6fdb;
+            --user-msg-bg: #2a6fdb;
+            --assistant-msg-bg: #f1f3f5;
+            --bg-color: #f8f9fa;
             --text-color: #212529;
             --light-text-color: #ffffff;
-            --border-color: #DEE2E6;
+            --border-color: #dee2e6;
         }
         * { box-sizing: border-box; }
         body {
@@ -27,279 +28,176 @@
             background-color: var(--bg-color);
         }
         #chat-container {
-            width: 90%;
-            max-width: 700px;
-            height: 95vh;
-            max-height: 800px;
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            background-color: white;
-            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+            width: 90%; max-width: 700px; height: 95vh; max-height: 850px;
+            border-radius: 16px; display: flex; flex-direction: column;
+            background-color: white; box-shadow: 0 12px 30px rgba(0,0,0,0.1);
             overflow: hidden;
         }
         #chat-header {
             padding: 1rem;
-            background: linear-gradient(135deg, var(--primary-color), #7aa9e8);
+            background: var(--primary-color);
             color: var(--light-text-color);
             text-align: center;
-            font-weight: 700;
-            font-size: 1.2rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             z-index: 10;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        #chat-header h1 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        #chat-header p {
+            margin: 4px 0 0;
+            font-size: 0.85rem;
+            opacity: 0.9;
         }
         #messages {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
+            flex-grow: 1; overflow-y: auto; padding: 1.5rem;
+            display: flex; flex-direction: column; gap: 1.25rem;
         }
         .message {
-            display: flex;
-            align-items: flex-end;
-            gap: 12px;
-            max-width: 85%;
+            display: flex; align-items: flex-end; gap: 12px; max-width: 85%;
         }
         .message-content {
-            padding: 12px 18px;
-            border-radius: 20px;
-            line-height: 1.6;
-            word-wrap: break-word;
+            padding: 12px 18px; border-radius: 20px;
+            line-height: 1.6; word-wrap: break-word;
         }
         .message-content p:first-child { margin-top: 0; }
         .message-content p:last-child { margin-bottom: 0; }
-        .user {
-            align-self: flex-end;
-            flex-direction: row-reverse;
-        }
-        .user .message-content {
-            background-color: var(--user-msg-bg);
-            color: var(--light-text-color);
-            border-bottom-right-radius: 5px;
-        }
-        .assistant {
-            align-self: flex-start;
-        }
-        .assistant .message-content {
-            background-color: var(--assistant-msg-bg);
-            color: var(--text-color);
-            border-bottom-left-radius: 5px;
-        }
+        .user { align-self: flex-end; flex-direction: row-reverse; }
+        .user .message-content { background-color: var(--user-msg-bg); color: var(--light-text-color); border-bottom-right-radius: 5px; }
+        .assistant { align-self: flex-start; }
+        .assistant .message-content { background-color: var(--assistant-msg-bg); color: var(--text-color); border-bottom-left-radius: 5px; }
         .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.5rem;
-            flex-shrink: 0;
-            background-color: var(--assistant-msg-bg);
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.5rem; flex-shrink: 0; background-color: #e9ecef;
         }
-        .user .avatar { background-color: var(--primary-color); }
-        .typing-indicator {
-            display: none;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 0;
-            margin-right: 52px; /* To align with message content */
-        }
-        .typing-indicator .typing-bubble {
-            display: flex;
-            align-items: center;
-            background-color: var(--assistant-msg-bg);
-            padding: 12px 18px;
-            border-radius: 20px;
-            border-bottom-left-radius: 5px;
-        }
-        .typing-indicator span {
-            display: inline-block; width: 8px; height: 8px;
-            border-radius: 50%; background-color: #868e96;
-            margin: 0 2px; animation: bounce 1.2s infinite ease-in-out;
-        }
-        .typing-indicator span:nth-child(2) { animation-delay: -0.2s; }
-        .typing-indicator span:nth-child(3) { animation-delay: -0.4s; }
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1.0); }
-        }
-        .options-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0 0 52px; }
-        .option-button { background-color: #fff; border: 1px solid var(--primary-color); color: var(--primary-color); padding: 8px 16px; border-radius: 20px; cursor: pointer; font-family: 'Vazirmatn', sans-serif; font-size: 0.9rem; transition: all 0.2s; }
-        .option-button:hover { background-color: var(--primary-color); color: white; }
+        .user .avatar { background-color: #0d6efd; }
+        .suggested-questions { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0 0 52px; justify-content: flex-start; }
+        .suggestion-btn { background-color: #fff; border: 1px solid var(--primary-color); color: var(--primary-color); padding: 8px 16px; border-radius: 20px; cursor: pointer; font-family: 'Vazirmatn', sans-serif; font-size: 0.9rem; transition: all 0.2s; }
+        .suggestion-btn:hover { background-color: var(--primary-color); color: white; transform: translateY(-2px); }
         #input-area {
             display: flex; padding: 1rem; border-top: 1px solid var(--border-color);
-            background-color: #fff; gap: 10px;
+            background-color: #f8f9fa; gap: 10px; align-items: center;
         }
         #userInput {
-            flex-grow: 1; border: 1px solid var(--border-color);
-            padding: 12px 18px; border-radius: 25px;
-            font-size: 1rem; font-family: 'Vazirmatn', sans-serif;
+            flex-grow: 1; border: 1px solid var(--border-color); padding: 12px 18px;
+            border-radius: 25px; font-size: 1rem; font-family: 'Vazirmatn', sans-serif;
             transition: all 0.2s;
         }
         #userInput:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2); }
         #sendButton {
             background-color: var(--primary-color); color: white; border: none;
-            width: 50px; height: 50px; border-radius: 50%; cursor: pointer;
+            width: 48px; height: 48px; border-radius: 50%; cursor: pointer;
             font-size: 1.5rem; display: flex; align-items: center; justify-content: center;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, transform 0.1s; flex-shrink: 0;
         }
-        #sendButton:hover { background-color: #357ABD; }
-        #sendButton:disabled { background-color: #a9c7e9; cursor: not-allowed; }
+        #sendButton:hover { background-color: #0b5ed7; }
+        #sendButton:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
     <div id="chat-container">
-        <div id="chat-header">مشاور هوشمند AI</div>
-        <div id="messages">
-            </div>
+        <div id="chat-header">
+            <h1>همیار هوش</h1>
+            <p>مشاور شما برای دوره‌های هوش مصنوعی</p>
+        </div>
+        <div id="messages"></div>
         <div id="input-area">
             <input type="text" id="userInput" placeholder="پیام خود را بنویسید...">
             <button id="sendButton" title="ارسال">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
             </button>
         </div>
     </div>
 
     <script>
-        // DOM Elements
         const sendButton = document.getElementById('sendButton');
         const userInput = document.getElementById('userInput');
         const messagesDiv = document.getElementById('messages');
-        
-        // API and Session
-        const chatApiUrl = 'http://127.0.0.1:8000/chat';
-        let sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const chatApiUrl = 'https://eli265-hamyar-hoosh.hf.space/chat';
 
-        // Helper to scroll to bottom
-        function scrollToBottom() {
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
-
-        // Adds a message bubble to the UI
         function addMessageToUI(sender, text) {
             const messageWrapper = document.createElement('div');
             messageWrapper.className = `message ${sender}`;
-
             const avatar = document.createElement('div');
             avatar.className = 'avatar';
             avatar.textContent = sender === 'user' ? '👤' : '🤖';
-
             const msgContent = document.createElement('div');
             msgContent.className = 'message-content';
-            msgContent.innerHTML = marked.parse(text); // Use marked.js to render markdown
-            
+            msgContent.innerHTML = marked.parse(text); // Renders markdown
             messageWrapper.appendChild(avatar);
             messageWrapper.appendChild(msgContent);
             messagesDiv.appendChild(messageWrapper);
-            scrollToBottom();
-        }
-        
-        // Shows or hides the typing indicator
-        function showTypingIndicator(show) {
-            const indicatorId = 'typing-indicator-id';
-            let indicator = document.getElementById(indicatorId);
-
-            if (show) {
-                if (!indicator) {
-                    indicator = document.createElement('div');
-                    indicator.id = indicatorId;
-                    indicator.className = 'typing-indicator message assistant';
-                    indicator.innerHTML = `
-                        <div class="avatar">🤖</div>
-                        <div class="typing-bubble">
-                            <span></span><span></span><span></span>
-                        </div>
-                    `;
-                    messagesDiv.appendChild(indicator);
-                }
-                indicator.style.display = 'flex';
-                scrollToBottom();
-            } else {
-                if (indicator) {
-                    indicator.remove();
-                }
-            }
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
-        // Renders buttons for user to click
-        function addOptionsToUI(options) {
-            const optionsContainer = document.createElement('div');
-            optionsContainer.className = 'options-container';
-            options.forEach(option => {
+        function showSuggestedQuestions() {
+            const questions = [
+                "از کجا باید یادگیری هوش مصنوعی را شروع کنم؟",
+                "چه دوره‌هایی برای استفاده از ابزارهای AI دارید؟",
+                "یک دوره پیشرفته در زمینه یادگیری ماشین معرفی کن.",
+				"چطور هوش مصنوعی یاد بگیرم",
+				"دوره های عمومی هوش مصنوعی رو می خواهم",
+				"دوره های تخصصی هو ش مصنوعی رو معرفی کن ",
+                "آیا دوره‌ها مدرک معتبر دارند؟",
+            ];
+            const suggestionsContainer = document.createElement('div');
+            suggestionsContainer.className = 'suggested-questions';
+            questions.forEach(q => {
                 const button = document.createElement('button');
-                button.className = 'option-button';
-                button.textContent = option.label;
-                button.onclick = () => handleOptionClick(option.label, option.value);
-                optionsContainer.appendChild(button);
+                button.className = 'suggestion-btn';
+                button.textContent = q;
+                button.onclick = () => handleSuggestionClick(q);
+                suggestionsContainer.appendChild(button);
             });
-            messagesDiv.appendChild(optionsContainer);
-            scrollToBottom();
-        }
-        
-        // Handles when a user clicks an option button
-        function handleOptionClick(label, value) {
-            addMessageToUI('user', label);
-            document.querySelectorAll('.options-container').forEach(el => el.remove());
-            sendMessage(value); 
+            messagesDiv.appendChild(suggestionsContainer);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
-        // Main function to send message to backend
+        function handleSuggestionClick(question) {
+            addMessageToUI('user', question);
+            document.querySelectorAll('.suggested-questions').forEach(el => el.remove());
+            sendMessage(question);
+        }
+
         async function sendMessage(messageText = null) {
             const message = messageText ?? userInput.value.trim();
             if (!message) return;
             
-            if (!messageText) { // Only add user message if it's not from a button click
+            if (!messageText) {
                 addMessageToUI('user', message);
+                document.querySelectorAll('.suggested-questions').forEach(el => el.remove());
             }
             userInput.value = '';
-            userInput.disabled = true;
-            sendButton.disabled = true;
-            showTypingIndicator(true);
 
             try {
                 const response = await fetch(chatApiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message, session_id: sessionId })
+                    body: JSON.stringify({ message: message })
                 });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
-                }
-                
+                if (!response.ok) throw new Error('Network response was not ok');
                 const data = await response.json();
-                
                 addMessageToUI('assistant', data.response);
-
-                if (data.options && data.options.length > 0) {
-                    addOptionsToUI(data.options);
-                }
-
             } catch (e) {
-                console.error("Chat Error:", e);
-                addMessageToUI('assistant', 'متاسفانه یک خطای ارتباطی رخ داد. لطفاً مطمئن شوید سرور در حال اجراست.');
-            } finally {
-                showTypingIndicator(false);
-                userInput.disabled = false;
-                sendButton.disabled = false;
-                userInput.focus();
+                addMessageToUI('assistant', 'متاسفانه در ارتباط با سرور مشکلی پیش آمده. لطفاً از فعال بودن سرور مطمئن شوید.');
             }
         }
         
-        // --- Event Listeners ---
         sendButton.addEventListener('click', () => sendMessage());
-        userInput.addEventListener('keypress', (e) => {
+        userInput.addEventListener('keypress', e => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 sendMessage();
             }
         });
 
-        // --- Initial Load ---
         window.onload = () => {
-             addMessageToUI('assistant', 'سلام! من مشاور هوشمند AI هستم. در چه زمینه‌ای می‌توانم به شما کمک کنم؟');
+             addMessageToUI('assistant', 'سلام! من «همیار هوش» هستم. برای شروع می‌توانید یکی از سوالات زیر را انتخاب کنید یا سوال خودتان را بپرسید.');
+             showSuggestedQuestions();
              userInput.focus();
         };
     </script>
